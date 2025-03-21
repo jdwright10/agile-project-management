@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agile Project Management</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Dashboard chart styles */
+        .timeline-placeholder, .velocity-placeholder {
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .timeline-chart {
+            width: 100%;
+            padding: 20px 0;
+            position: relative;
+        }
+        .timeline-bar {
+            height: 30px;
+            border-radius: 4px;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .velocity-chart {
+            width: 100%;
+            padding: 20px 0;
+        }
+        .chart-bars {
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 0 20px;
+            margin-bottom: 10px;
+        }
+        .chart-bar {
+            width: 40px;
+            background-color: #3498db;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+        .chart-bar::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html">AgileManager</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="index.html">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="src/pages/projects.html">Projects</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="src/pages/backlog.html">Backlog</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="src/pages/sprints.html">Sprints</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="src/pages/teams.html">Teams</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="src/pages/reports.html">Reports</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <button class="btn btn-light me-2">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
+                                <li><a class="dropdown-item" href="#">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container-fluid mt-4">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-3 col-xl-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Quick Access</h5>
+                            <div class="list-group">
+                                <a href="#" class="list-group-item list-group-item-action">My Tasks</a>
+                                <a href="src/pages/sprints.html" class="list-group-item list-group-item-action">Active Sprints</a>
+                                <a href="#" class="list-group-item list-group-item-action">Upcoming Releases</a>
+                                <a href="src/pages/reports.html" class="list-group-item list-group-item-action">Team Performance</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Content -->
+                <div class="col-md-9 col-xl-10">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h3 class="card-title">Executive Overview</h3>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h5>Active Projects</h5>
+                                                    <h2>12</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h5>On Schedule</h5>
+                                                    <h2>10</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h5>At Risk</h5>
+                                                    <h2>2</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h5>Avg. Completion</h5>
+                                                    <h2>76%</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title">Project Timeline</h4>
+                                    <p class="card-text">Interactive timeline showing all active projects.</p>
+                                    <div class="timeline-placeholder">
+                                        <div class="timeline-chart">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <small>Jan</small>
+                                                <small>Feb</small>
+                                                <small>Mar</small>
+                                                <small>Apr</small>
+                                                <small>May</small>
+                                                <small>Jun</small>
+                                            </div>
+                                            <div class="timeline-bar bg-primary" style="width: 40%; margin-left: 10%;">Website Redesign</div>
+                                            <div class="timeline-bar bg-success" style="width: 60%; margin-left: 20%;">Mobile App Dev</div>
+                                            <div class="timeline-bar bg-warning" style="width: 30%; margin-left: 0%;">API Integration</div>
+                                            <div class="timeline-bar bg-info" style="width: 25%; margin-left: 50%;">QA Testing</div>
+                                            <p class="mt-3 small text-muted text-center">* In production, this would be an interactive Gantt chart</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title">Team Velocity</h4>
+                                    <p class="card-text">Sprint velocity trends across teams.</p>
+                                    <div class="velocity-placeholder">
+                                        <div class="velocity-chart">
+                                            <div class="chart-bars">
+                                                <div class="chart-bar" style="height: 60%;" data-value="30"></div>
+                                                <div class="chart-bar" style="height: 80%;" data-value="40"></div>
+                                                <div class="chart-bar" style="height: 50%;" data-value="25"></div>
+                                                <div class="chart-bar" style="height: 90%;" data-value="45"></div>
+                                                <div class="chart-bar" style="height: 85%;" data-value="42"></div>
+                                                <div class="chart-bar" style="height: 100%;" data-value="50"></div>
+                                            </div>
+                                            <div class="d-flex justify-content-between px-4 mt-1">
+                                                <small>Sprint 1</small>
+                                                <small>Sprint 2</small>
+                                                <small>Sprint 3</small>
+                                                <small>Sprint 4</small>
+                                                <small>Sprint 5</small>
+                                                <small>Sprint 6</small>
+                                            </div>
+                                            <p class="mt-3 small text-muted text-center">* In production, this would be an interactive chart</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="mb-0">Active Projects</h4>
+                                    <button class="btn btn-primary btn-sm">New Project</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Project Name</th>
+                                                    <th>Status</th>
+                                                    <th>Progress</th>
+                                                    <th>Team</th>
+                                                    <th>Deadline</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Website Redesign</td>
+                                                    <td><span class="badge bg-success">On Track</span></td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar" role="progressbar" style="width: 75%"></div>
+                                                        </div>
+                                                    </td>
+                                                    <td>Frontend Team</td>
+                                                    <td>Dec 15, 2023</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Mobile App Development</td>
+                                                    <td><span class="badge bg-warning">At Risk</span></td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 45%"></div>
+                                                        </div>
+                                                    </td>
+                                                    <td>Mobile Team</td>
+                                                    <td>Jan 30, 2024</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>API Integration</td>
+                                                    <td><span class="badge bg-success">On Track</span></td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar" role="progressbar" style="width: 60%"></div>
+                                                        </div>
+                                                    </td>
+                                                    <td>Backend Team</td>
+                                                    <td>Nov 30, 2023</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/app.js"></script>
+</body>
+</html> 

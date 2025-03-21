@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Health Coach Logo</title>
+    <defs>
+        <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="logoGradient">
+            <stop stop-color="#4CAF50" offset="0%"></stop>
+            <stop stop-color="#2E7D32" offset="100%"></stop>
+        </linearGradient>
+        <circle id="path-1" cx="100" cy="100" r="90"></circle>
+        <filter x="-8.3%" y="-8.3%" width="116.7%" height="116.7%" filterUnits="objectBoundingBox" id="shadow">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.25 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Logo" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Circle">
+            <use fill="black" fill-opacity="1" filter="url(#shadow)" xlink:href="#path-1"></use>
+            <use fill="url(#logoGradient)" fill-rule="evenodd" xlink:href="#path-1"></use>
+        </g>
+        
+        <!-- Heart Icon -->
+        <path d="M100,140 C98.8,140 97.7,139.6 96.8,138.8 C87.4,130.4 80.1,123.6 75.2,118.1 C68.4,110.5 65,103.4 65,95.9 C65,88.4 67.5,81.7 72.6,76.6 C77.7,71.5 84.4,69 91.9,69 C96.4,69 100.6,70.2 104.4,72.6 C106.3,73.8 108,75.3 109.5,77 C111,75.3 112.7,73.8 114.6,72.6 C118.4,70.2 122.6,69 127.1,69 C134.6,69 141.3,71.5 146.4,76.6 C151.5,81.7 154,88.4 154,95.9 C154,103.4 150.6,110.5 143.8,118.1 C138.9,123.6 131.6,130.4 122.2,138.8 C121.3,139.6 120.2,140 119,140 L100,140 Z" id="Heart" fill="#FFFFFF"></path>
+        
+        <!-- Apple Icon -->
+        <path d="M78,135 C72.5,135 68,131.8 68,127.7 L68,89.3 C68,85.2 72.5,82 78,82 C83.5,82 88,85.2 88,89.3 L88,127.7 C88,131.8 83.5,135 78,135 Z" id="Stem" fill="#FFFFFF"></path>
+        <path d="M123.8,88.3 C121.9,88.9 119.9,89.2 117.9,89.2 C112.2,89.2 107.1,86.8 104,82.9 C100.9,86.8 95.8,89.2 90.1,89.2 C88.1,89.2 86.1,88.9 84.2,88.3 C80.2,95.6 78,104 78,113 C78,131.2 89.2,146 103,146 C116.8,146 128,131.2 128,113 C128,104 125.8,95.6 121.8,88.3 L123.8,88.3 Z" id="Apple" fill="#FFFFFF"></path>
+        
+        <!-- Text -->
+        <text id="HEALTH" font-family="Arial-BoldMT, Arial" font-size="18" font-weight="bold" fill="#FFFFFF">
+            <tspan x="71" y="65">HEALTH</tspan>
+        </text>
+        <text id="COACH" font-family="Arial-BoldMT, Arial" font-size="18" font-weight="bold" fill="#FFFFFF">
+            <tspan x="75" y="165">COACH</tspan>
+        </text>
+    </g>
+</svg> 

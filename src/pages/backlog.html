@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlog - Agile Project Management</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .backlog-item {
+            border-left: 4px solid #ddd;
+            transition: all 0.2s ease;
+        }
+        .priority-high {
+            border-left-color: #e74c3c;
+        }
+        .priority-medium {
+            border-left-color: #f39c12;
+        }
+        .priority-low {
+            border-left-color: #3498db;
+        }
+        .story-points {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #eee;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+        }
+        .task-id {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .filter-card {
+            position: sticky;
+            top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="../../index.html">AgileManager</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="../../index.html">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="projects.html">Projects</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="backlog.html">Backlog</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="sprints.html">Sprints</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="teams.html">Teams</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="reports.html">Reports</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <button class="btn btn-light me-2">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
+                                <li><a class="dropdown-item" href="#">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container-fluid mt-4">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-3 col-xl-2">
+                    <div class="card filter-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Filters</h5>
+                            <div class="mb-3">
+                                <label for="projectFilter" class="form-label">Project</label>
+                                <select class="form-select" id="projectFilter">
+                                    <option value="all">All Projects</option>
+                                    <option value="1">Website Redesign</option>
+                                    <option value="2">Mobile App Development</option>
+                                    <option value="3">API Integration</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Priority</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="priorityHigh" checked>
+                                    <label class="form-check-label" for="priorityHigh">
+                                        High
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="priorityMedium" checked>
+                                    <label class="form-check-label" for="priorityMedium">
+                                        Medium
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="priorityLow" checked>
+                                    <label class="form-check-label" for="priorityLow">
+                                        Low
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Type</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="typeFeature" checked>
+                                    <label class="form-check-label" for="typeFeature">
+                                        Feature
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="typeBug" checked>
+                                    <label class="form-check-label" for="typeBug">
+                                        Bug
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="typeTask" checked>
+                                    <label class="form-check-label" for="typeTask">
+                                        Task
+                                    </label>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100">Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backlog Content -->
+                <div class="col-md-9 col-xl-10">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Product Backlog</h2>
+                        <div>
+                            <button class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-file-export"></i> Export
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Item
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Backlog Items -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="fas fa-search text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control border-start-0" placeholder="Search backlog items...">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                    <label class="me-2">Sort by:</label>
+                                    <select class="form-select form-select-sm d-inline-block w-auto">
+                                        <option>Priority (High to Low)</option>
+                                        <option>Priority (Low to High)</option>
+                                        <option>ID (Newest First)</option>
+                                        <option>ID (Oldest First)</option>
+                                        <option>Story Points</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                <!-- Backlog Item 1 -->
+                                <div class="list-group-item backlog-item priority-high">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-7">
+                                            <div class="d-flex align-items-center">
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input" type="checkbox" value="">
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-danger me-2">High</span>
+                                                    <span class="badge bg-primary me-2">Feature</span>
+                                                    <span class="task-id me-2">PRJ-101</span>
+                                                    <h5 class="mb-1 mt-2">User Authentication System</h5>
+                                                    <p class="text-muted mb-0">Implement secure login and registration functionality</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                                            <span class="story-points me-3">8</span>
+                                            <span class="text-muted me-3">Website Redesign</span>
+                                            <div class="dropdown d-inline-block">
+                                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#">Edit</a></li>
+                                                    <li><a class="dropdown-item" href="#">Add to Sprint</a></li>
+                                                    <li><a class="dropdown-item" href="#">Assign</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Backlog Item 2 -->
+                                <div class="list-group-item backlog-item priority-medium">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-7">
+                                            <div class="d-flex align-items-center">
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input" type="checkbox" value="">
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-warning me-2">Medium</span>
+                                                    <span class="badge bg-danger me-2">Bug</span>
+                                                    <span class="task-id me-2">PRJ-102</span>
+                                                    <h5 class="mb-1 mt-2">Fix Responsive Layout Issues</h5>
+                                                    <p class="text-muted mb-0">Address UI breakpoints on mobile devices</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                                            <span class="story-points me-3">3</span>
+                                            <span class="text-muted me-3">Website Redesign</span>
+                                            <div class="dropdown d-inline-block">
+                                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#">Edit</a></li>
+                                                    <li><a class="dropdown-item" href="#">Add to Sprint</a></li>
+                                                    <li><a class="dropdown-item" href="#">Assign</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Backlog Item 3 -->
+                                <div class="list-group-item backlog-item priority-low">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-7">
+                                            <div class="d-flex align-items-center">
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input" type="checkbox" value="">
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-info me-2">Low</span>
+                                                    <span class="badge bg-primary me-2">Feature</span>
+                                                    <span class="task-id me-2">PRJ-103</span>
+                                                    <h5 class="mb-1 mt-2">Implement Dark Mode</h5>
+                                                    <p class="text-muted mb-0">Add theme toggle functionality and styles</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                                            <span class="story-points me-3">5</span>
+                                            <span class="text-muted me-3">Website Redesign</span>
+                                            <div class="dropdown d-inline-block">
+                                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#">Edit</a></li>
+                                                    <li><a class="dropdown-item" href="#">Add to Sprint</a></li>
+                                                    <li><a class="dropdown-item" href="#">Assign</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Backlog Item 4 -->
+                                <div class="list-group-item backlog-item priority-high">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-7">
+                                            <div class="d-flex align-items-center">
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input" type="checkbox" value="">
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-danger me-2">High</span>
+                                                    <span class="badge bg-primary me-2">Feature</span>
+                                                    <span class="task-id me-2">PRJ-104</span>
+                                                    <h5 class="mb-1 mt-2">API Integration for Payment Gateway</h5>
+                                                    <p class="text-muted mb-0">Implement secure payment processing</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                                            <span class="story-points me-3">13</span>
+                                            <span class="text-muted me-3">Mobile App Development</span>
+                                            <div class="dropdown d-inline-block">
+                                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#">Edit</a></li>
+                                                    <li><a class="dropdown-item" href="#">Add to Sprint</a></li>
+                                                    <li><a class="dropdown-item" href="#">Assign</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Backlog Item 5 -->
+                                <div class="list-group-item backlog-item priority-medium">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-7">
+                                            <div class="d-flex align-items-center">
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input" type="checkbox" value="">
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-warning me-2">Medium</span>
+                                                    <span class="badge bg-secondary me-2">Task</span>
+                                                    <span class="task-id me-2">PRJ-105</span>
+                                                    <h5 class="mb-1 mt-2">Implement Unit Tests</h5>
+                                                    <p class="text-muted mb-0">Write comprehensive test suite for core functionality</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                                            <span class="story-points me-3">8</span>
+                                            <span class="text-muted me-3">API Integration</span>
+                                            <div class="dropdown d-inline-block">
+                                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#">Edit</a></li>
+                                                    <li><a class="dropdown-item" href="#">Add to Sprint</a></li>
+                                                    <li><a class="dropdown-item" href="#">Assign</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <nav>
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../app.js"></script>
+    <script>
+        // Backlog specific functionality would go here
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Backlog page loaded');
+            
+            // Example of filtering functionality
+            const filterBtn = document.querySelector('.btn-primary');
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function() {
+                    console.log('Filter functionality would be implemented here');
+                    // Filter logic would go here instead of alert
+                });
+            }
+            
+            // Example of adding a new backlog item
+            const addItemBtn = document.querySelector('.btn-primary:nth-of-type(2)');
+            if (addItemBtn) {
+                addItemBtn.addEventListener('click', function() {
+                    console.log('Add item functionality would be implemented here');
+                    // Modal open logic would go here instead of alert
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

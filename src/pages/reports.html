@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Agile Project Management</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chart-container {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .metric-card {
+            border-left: 4px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .metric-card.positive {
+            border-left-color: #2ecc71;
+        }
+        .metric-card.neutral {
+            border-left-color: #3498db;
+        }
+        .metric-card.negative {
+            border-left-color: #e74c3c;
+        }
+        .trend-indicator {
+            font-size: 14px;
+            margin-left: 8px;
+        }
+        .trend-up {
+            color: #2ecc71;
+        }
+        .trend-down {
+            color: #e74c3c;
+        }
+        .project-status-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .status-on-track {
+            background-color: #2ecc71;
+        }
+        .status-at-risk {
+            background-color: #f39c12;
+        }
+        .status-delayed {
+            background-color: #e74c3c;
+        }
+        .status-completed {
+            background-color: #3498db;
+        }
+        .date-range-picker {
+            max-width: 300px;
+        }
+        
+        /* Chart visualization styles */
+        .timeline-visualization {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            position: relative;
+        }
+        .timeline-bar {
+            height: 30px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            position: relative;
+            color: white;
+            font-size: 14px;
+            line-height: 30px;
+            padding-left: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .status-visualization {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #2ecc71 0% 55%, /* On Track - 55% */
+                #f39c12 55% 70%, /* At Risk - 15% */
+                #e74c3c 70% 85%, /* Delayed - 15% */
+                #3498db 85% 100% /* Completed - 15% */
+            );
+            position: relative;
+            margin: 0 auto;
+        }
+        .status-visualization::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+        }
+        .status-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .status-legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        
+        .team-visualization {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+        }
+        .team-bar-container {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+        .team-bar {
+            width: 60px;
+            background-color: #3498db;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+        .team-bar::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .team-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .forecast-visualization {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+        }
+        .forecast-line {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .forecast-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.05) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05) 75%, transparent 75%, transparent 100%);
+            background-size: 100% 25%;
+        }
+        .forecast-actual {
+            position: absolute;
+            width: 70%;
+            border-top: 3px solid #3498db;
+            top: 70%;
+            left: 0;
+        }
+        .forecast-projected {
+            position: absolute;
+            border-top: 3px dashed #e74c3c;
+            width: 100%;
+            top: 30%;
+            left: 0;
+        }
+        .forecast-point {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #3498db;
+            transform: translate(-50%, -50%);
+        }
+        
+        .resource-visualization {
+            width: 220px;
+            height: 220px;
+            position: relative;
+            margin: 0 auto;
+        }
+        .resource-pie {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #3498db 0% 30%, /* Frontend Team - 30% */
+                #2ecc71 30% 55%, /* Backend Team - 25% */
+                #9b59b6 55% 70%, /* UX/UI Team - 15% */
+                #f39c12 70% 85%, /* QA Team - 15% */
+                #e74c3c 85% 100% /* DevOps Team - 15% */
+            );
+        }
+        .resource-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .resource-legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 10px;
+        }
+        .resource-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="../../index.html">AgileManager</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="../../index.html">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="projects.html">Projects</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="backlog.html">Backlog</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="sprints.html">Sprints</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="teams.html">Teams</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="reports.html">Reports</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <button class="btn btn-light me-2">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
+                                <li><a class="dropdown-item" href="#">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container-fluid mt-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-0">Executive Reports</h2>
+                            <p class="text-muted">High-level insights into project performance and team productivity</p>
+                        </div>
+                        <div class="d-flex">
+                            <div class="date-range-picker me-3">
+                                <select class="form-select">
+                                    <option>Last 30 Days</option>
+                                    <option>Last Quarter</option>
+                                    <option>Year to Date</option>
+                                    <option>Last 12 Months</option>
+                                    <option>Custom Range</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-file-export"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card metric-card positive">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-1">Overall Completion Rate</h6>
+                            <div class="d-flex align-items-center">
+                                <h3 class="mb-0">87%</h3>
+                                <span class="trend-indicator trend-up ms-2">
+                                    <i class="fas fa-arrow-up"></i> 5%
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-0">vs last period</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card metric-card neutral">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-1">Avg. Delivery Time</h6>
+                            <div class="d-flex align-items-center">
+                                <h3 class="mb-0">14.2 days</h3>
+                                <span class="trend-indicator ms-2">
+                                    <i class="fas fa-equals"></i>
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-0">unchanged from last period</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card metric-card negative">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-1">Bug Rate</h6>
+                            <div class="d-flex align-items-center">
+                                <h3 class="mb-0">7.5%</h3>
+                                <span class="trend-indicator trend-down ms-2">
+                                    <i class="fas fa-arrow-down"></i> 2.3%
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-0">improvement from last period</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card metric-card positive">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-1">Team Velocity</h6>
+                            <div class="d-flex align-items-center">
+                                <h3 class="mb-0">52 pts</h3>
+                                <span class="trend-indicator trend-up ms-2">
+                                    <i class="fas fa-arrow-up"></i> 8%
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-0">vs last period</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Timeline & Delivery -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Project Timeline Overview</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" id="timelineChart">
+                                <p class="text-muted">Timeline Chart Visualization Goes Here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Project Status Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" id="statusChart">
+                                <p class="text-muted">Status Chart Visualization Goes Here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Performance & Project Progress -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Team Performance</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" id="teamChart">
+                                <p class="text-muted">Team Performance Chart Goes Here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Project Completion Forecast</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" id="forecastChart">
+                                <p class="text-muted">Forecast Chart Goes Here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Summary Table -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Project Summary</h5>
+                            <div class="input-group" style="width: 250px;">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" placeholder="Find project...">
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Project</th>
+                                            <th>Status</th>
+                                            <th>Timeline</th>
+                                            <th>Completion</th>
+                                            <th>Budget</th>
+                                            <th>Team</th>
+                                            <th>ROI</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Website Redesign</td>
+                                            <td>
+                                                <span class="project-status-dot status-on-track"></span>
+                                                On Track
+                                            </td>
+                                            <td>Jan 15 - Mar 30</td>
+                                            <td>
+                                                <div class="progress" style="height: 6px; width: 100px;">
+                                                    <div class="progress-bar" style="width: 75%"></div>
+                                                </div>
+                                                <small class="ms-2">75%</small>
+                                            </td>
+                                            <td>
+                                                <span class="text-success">$32,000 / $40,000</span>
+                                            </td>
+                                            <td>Frontend Team</td>
+                                            <td>
+                                                <span class="badge bg-success">High</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mobile App Development</td>
+                                            <td>
+                                                <span class="project-status-dot status-at-risk"></span>
+                                                At Risk
+                                            </td>
+                                            <td>Feb 1 - Jun 15</td>
+                                            <td>
+                                                <div class="progress" style="height: 6px; width: 100px;">
+                                                    <div class="progress-bar bg-warning" style="width: 45%"></div>
+                                                </div>
+                                                <small class="ms-2">45%</small>
+                                            </td>
+                                            <td>
+                                                <span class="text-warning">$65,000 / $60,000</span>
+                                            </td>
+                                            <td>Mobile Team</td>
+                                            <td>
+                                                <span class="badge bg-success">High</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>API Integration</td>
+                                            <td>
+                                                <span class="project-status-dot status-on-track"></span>
+                                                On Track
+                                            </td>
+                                            <td>Jan 10 - Mar 15</td>
+                                            <td>
+                                                <div class="progress" style="height: 6px; width: 100px;">
+                                                    <div class="progress-bar" style="width: 80%"></div>
+                                                </div>
+                                                <small class="ms-2">80%</small>
+                                            </td>
+                                            <td>
+                                                <span class="text-success">$20,000 / $22,000</span>
+                                            </td>
+                                            <td>Backend Team</td>
+                                            <td>
+                                                <span class="badge bg-warning">Medium</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>User Research</td>
+                                            <td>
+                                                <span class="project-status-dot status-completed"></span>
+                                                Completed
+                                            </td>
+                                            <td>Jan 5 - Feb 10</td>
+                                            <td>
+                                                <div class="progress" style="height: 6px; width: 100px;">
+                                                    <div class="progress-bar" style="width: 100%"></div>
+                                                </div>
+                                                <small class="ms-2">100%</small>
+                                            </td>
+                                            <td>
+                                                <span class="text-success">$12,000 / $15,000</span>
+                                            </td>
+                                            <td>UX Team</td>
+                                            <td>
+                                                <span class="badge bg-success">High</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Database Migration</td>
+                                            <td>
+                                                <span class="project-status-dot status-delayed"></span>
+                                                Delayed
+                                            </td>
+                                            <td>Dec 15 - Feb 28</td>
+                                            <td>
+                                                <div class="progress" style="height: 6px; width: 100px;">
+                                                    <div class="progress-bar bg-danger" style="width: 35%"></div>
+                                                </div>
+                                                <small class="ms-2">35%</small>
+                                            </td>
+                                            <td>
+                                                <span class="text-danger">$45,000 / $40,000</span>
+                                            </td>
+                                            <td>DevOps Team</td>
+                                            <td>
+                                                <span class="badge bg-warning">Medium</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Factors & Resource Allocation -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Risk Factors</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Resource Availability</h6>
+                                        <p class="mb-0 small text-muted">Mobile Team is understaffed by 2 developers</p>
+                                    </div>
+                                    <span class="badge bg-danger">High</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Technical Debt</h6>
+                                        <p class="mb-0 small text-muted">Legacy system integration poses challenges</p>
+                                    </div>
+                                    <span class="badge bg-warning">Medium</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Third-party API Changes</h6>
+                                        <p class="mb-0 small text-muted">Payment processor upgrading API in Q2</p>
+                                    </div>
+                                    <span class="badge bg-warning">Medium</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Scope Creep</h6>
+                                        <p class="mb-0 small text-muted">Mobile app requirements expanding</p>
+                                    </div>
+                                    <span class="badge bg-danger">High</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Budget Overrun</h6>
+                                        <p class="mb-0 small text-muted">Database migration project over budget by 12%</p>
+                                    </div>
+                                    <span class="badge bg-warning">Medium</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Resource Allocation</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" id="resourceChart">
+                                <p class="text-muted">Resource Allocation Chart Goes Here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../app.js"></script>
+    <script>
+        // Reports page specific functionality would go here
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Reports page loaded');
+            
+            // Replace placeholder images with CSS visualizations
+            
+            // Timeline chart
+            const timelineChart = document.getElementById('timelineChart');
+            if (timelineChart) {
+                timelineChart.innerHTML = `
+                    <div class="timeline-visualization">
+                        <div class="timeline-bar" style="width: 60%; background-color: #3498db;">Website Redesign</div>
+                        <div class="timeline-bar" style="width: 70%; margin-left: 20%; background-color: #2ecc71;">Mobile App Development</div>
+                        <div class="timeline-bar" style="width: 40%; margin-left: 10%; background-color: #e74c3c;">API Integration</div>
+                        <div class="timeline-bar" style="width: 50%; margin-left: 5%; background-color: #f39c12;">Database Migration</div>
+                        <div class="timeline-bar" style="width: 30%; margin-left: 40%; background-color: #9b59b6;">Security Audit</div>
+                    </div>
+                `;
+            }
+            
+            // Status chart
+            const statusChart = document.getElementById('statusChart');
+            if (statusChart) {
+                statusChart.innerHTML = `
+                    <div class="status-visualization"></div>
+                    <div class="status-legend">
+                        <div class="status-legend-item">
+                            <span class="project-status-dot status-on-track"></span>
+                            <span>On Track (55%)</span>
+                        </div>
+                        <div class="status-legend-item">
+                            <span class="project-status-dot status-at-risk"></span>
+                            <span>At Risk (15%)</span>
+                        </div>
+                        <div class="status-legend-item">
+                            <span class="project-status-dot status-delayed"></span>
+                            <span>Delayed (15%)</span>
+                        </div>
+                        <div class="status-legend-item">
+                            <span class="project-status-dot status-completed"></span>
+                            <span>Completed (15%)</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Team chart
+            const teamChart = document.getElementById('teamChart');
+            if (teamChart) {
+                teamChart.innerHTML = `
+                    <div class="team-visualization">
+                        <div class="team-bar-container">
+                            <div class="team-bar" style="height: 90%;" data-value="45"></div>
+                            <div class="team-bar" style="height: 64%;" data-value="32"></div>
+                            <div class="team-bar" style="height: 80%;" data-value="40"></div>
+                            <div class="team-bar" style="height: 96%;" data-value="48"></div>
+                            <div class="team-bar" style="height: 70%;" data-value="35"></div>
+                        </div>
+                        <div class="team-labels">
+                            <span>Frontend</span>
+                            <span>Backend</span>
+                            <span>UX/UI</span>
+                            <span>QA</span>
+                            <span>DevOps</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Forecast chart
+            const forecastChart = document.getElementById('forecastChart');
+            if (forecastChart) {
+                forecastChart.innerHTML = `
+                    <div class="forecast-visualization">
+                        <div class="forecast-line">
+                            <div class="forecast-actual"></div>
+                            <div class="forecast-projected"></div>
+                            <div class="forecast-point" style="left: 10%; top: 80%;"></div>
+                            <div class="forecast-point" style="left: 25%; top: 75%;"></div>
+                            <div class="forecast-point" style="left: 40%; top: 65%;"></div>
+                            <div class="forecast-point" style="left: 55%; top: 60%;"></div>
+                            <div class="forecast-point" style="left: 70%; top: 50%;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                            <span>Jan</span>
+                            <span>Feb</span>
+                            <span>Mar</span>
+                            <span>Apr</span>
+                            <span>May</span>
+                            <span>Jun</span>
+                        </div>
+                        <div style="display: flex; margin-top: 10px; font-size: 12px;">
+                            <div style="display: flex; align-items: center; margin-right: 20px;">
+                                <span style="display: inline-block; width: 15px; border-top: 3px solid #3498db; margin-right: 5px;"></span>
+                                <span>Actual Progress</span>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <span style="display: inline-block; width: 15px; border-top: 3px dashed #e74c3c; margin-right: 5px;"></span>
+                                <span>Projected Completion</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Resource allocation chart
+            const resourceChart = document.getElementById('resourceChart');
+            if (resourceChart) {
+                resourceChart.innerHTML = `
+                    <div class="resource-visualization">
+                        <div class="resource-pie"></div>
+                    </div>
+                    <div class="resource-legend">
+                        <div class="resource-legend-item">
+                            <span class="resource-color" style="background-color: #3498db;"></span>
+                            <span>Frontend Team (30%)</span>
+                        </div>
+                        <div class="resource-legend-item">
+                            <span class="resource-color" style="background-color: #2ecc71;"></span>
+                            <span>Backend Team (25%)</span>
+                        </div>
+                        <div class="resource-legend-item">
+                            <span class="resource-color" style="background-color: #9b59b6;"></span>
+                            <span>UX/UI Team (15%)</span>
+                        </div>
+                        <div class="resource-legend-item">
+                            <span class="resource-color" style="background-color: #f39c12;"></span>
+                            <span>QA Team (15%)</span>
+                        </div>
+                        <div class="resource-legend-item">
+                            <span class="resource-color" style="background-color: #e74c3c;"></span>
+                            <span>DevOps Team (15%)</span>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html> 
